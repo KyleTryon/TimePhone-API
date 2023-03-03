@@ -1,0 +1,39 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Call {
+  id          Int       @id @default(autoincrement())
+  chatGPTId   String
+  character   String
+  // characterId Int
+  // character   Character @relation(fields: [characterId], references: [id])
+  createdAt   DateTime  @default(now())
+  messages    Message[]
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  callId    Int
+  call      Call     @relation(fields: [callId], references: [id])
+  audioUrl  String
+  body      String
+  createdAt DateTime @default(now())
+  isBot     Boolean
+}
+
+// model Character {
+//   id        Int      @id @default(autoincrement())
+//   name      String
+//   voiceName String
+//   createdAt DateTime @default(now())
+//   Calls      Call[]
+// }
