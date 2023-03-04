@@ -6,17 +6,26 @@ import {
   Patch,
   Param,
   Delete,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { MessagesService } from './messages.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiConsumes } from '@nestjs/swagger';
 
 @Controller('messages')
 export class MessagesController {
   constructor(private readonly messagesService: MessagesService) {}
 
   @Post()
-  create(@Body() createMessageDto: CreateMessageDto) {
+  @UseInterceptors(FileInterceptor('audioFile'))
+  @ApiConsumes('multipart/form-data')
+  create(
+    @UploadedFile() audioFile: Express.Multer.File,
+    @Body() createMessageDto: CreateMessageDto,
+  ) {
     return this.messagesService.create(createMessageDto);
   }
 

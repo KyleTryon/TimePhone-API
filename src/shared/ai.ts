@@ -24,4 +24,10 @@ export class AI {
     });
     return response.data;
   }
+
+  async transcribeAudioMessage(audio: File) {
+    return await this._api.createTranscription(audio, "whisper-1")
+  }
+
+
 }
