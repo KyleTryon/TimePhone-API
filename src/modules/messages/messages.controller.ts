@@ -19,14 +19,15 @@ import { ApiConsumes } from '@nestjs/swagger';
 export class MessagesController {
   constructor(private readonly messagesService: MessagesService) {}
 
+  // The create function is used to create a new message. It must contain an audio file, callID.
   @Post()
-  @UseInterceptors(FileInterceptor('audioFile'))
+  @UseInterceptors(FileInterceptor('audio'))
   @ApiConsumes('multipart/form-data')
   create(
-    @UploadedFile() audioFile: Express.Multer.File,
     @Body() createMessageDto: CreateMessageDto,
+    @UploadedFile() audio: Express.Multer.File,
   ) {
-    return this.messagesService.create(createMessageDto);
+    return this.messagesService.create(createMessageDto, audio);
   }
 
   @Get()

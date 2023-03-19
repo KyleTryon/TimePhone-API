@@ -1,4 +1,8 @@
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import {
+  PutObjectCommand,
+  S3Client,
+  GetObjectAclCommand,
+} from '@aws-sdk/client-s3';
 
 export class StorageService {
   private s3: S3Client = new S3Client({
@@ -8,29 +12,37 @@ export class StorageService {
     },
     endpoint: process.env.AWS_S3_ENDPOINT,
     forcePathStyle: true,
+    region: process.env.AWS_S3_REGION,
   });
-  constructor() {}
 
-  async uploadFile(key: string, file: File) {
+  async uploadFile(key: string, file: Express.Multer.File) {
     const putObjectCommand = new PutObjectCommand({
       Bucket: process.env.AWS_S3_BUCKET,
       Key: key,
-      Body: file,
-    })
-   try {
-    const data = await this.s3.send(putObjectCommand)
-    return data.$metadata;
-   } catch (error) {
-    const { requestId, cfId, extendedRequestId } = error.$$metadata;
-    console.log({ requestId, cfId, extendedRequestId });
-   }
+      Body: file.buffer,
+    });
+    try {
+      const data = await this.s3.send(putObjectCommand);
+      return data.$metadata;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async getFile(key: string) {
+    const getObjectCommand = new GetObjectAclCommand({
+      Bucket: process.env.AWS_S3_BUCKET,
+      Key: key,
+    });
+    try {
+      const data = await this.s3.send(getObjectCommand);
+      return data.$metadata;
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   static getFileUrl(key: string) {
     return `${process.env.AWS_S3_ENDPOINT}/${process.env.AWS_S3_BUCKET}/${key}`;
-  }
-
-  static convertMulerToFile(file: Express.Multer.File) {
-    return new File([file.buffer], file.originalname, { type: file.mimetype })
   }
 }

@@ -11,5 +11,5 @@ export class CreateMessageDto {
 
   @ApiProperty({ type: 'string', format: 'binary' })
   @Type(() => Readable)
-  audioFile: Readable;
+  audio: Readable;
 }

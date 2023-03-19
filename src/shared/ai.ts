@@ -1,4 +1,5 @@
 import { Configuration, OpenAIApi } from 'openai';
+import { Readable } from 'stream';
 export class AI {
   private _apiKey: string;
   private _api: OpenAIApi;
@@ -25,9 +26,14 @@ export class AI {
     return response.data;
   }
 
-  async transcribeAudioMessage(audio: File) {
-    return await this._api.createTranscription(audio, "whisper-1")
+  async transcribeAudioMessage(audio: Express.Multer.File) {
+    const audioStream = Readable.from(audio.buffer);
+    // @ts-expect-error: path is not a valid property
+    audioStream.path = audio.originalname;
+    const response = await this._api.createTranscription(
+      audioStream as any,
+      'whisper-1',
+    );
+    return response.data;
   }
-
-
 }
