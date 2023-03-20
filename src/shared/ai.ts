@@ -23,6 +23,7 @@ export class AI {
         },
       ],
       n: 1,
+      stop: ['?'],
     });
     const callPrompt = `${prompt} \nYOU: ${response.data.choices[0].message.content}`;
     return callPrompt;
