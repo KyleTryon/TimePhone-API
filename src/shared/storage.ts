@@ -42,6 +42,11 @@ export class StorageService {
     }
   }
 
+  static generateKey(filename: string) {
+    const date = new Date();
+    return `${date.getTime()}-${filename}`;
+  }
+  
   static getFileUrl(key: string) {
     return `${process.env.AWS_S3_ENDPOINT}/${process.env.AWS_S3_BUCKET}/${key}`;
   }

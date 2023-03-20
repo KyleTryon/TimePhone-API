@@ -9,25 +9,15 @@ export class CallsService {
   constructor(private prisma: PrismaService) {}
 
   async create(createCallDto: CreateCallDto) {
-    const newCall = await new AI().startCall(createCallDto.character);
-    console.log(newCall);
+    const newCallPrompt = await new AI().startCall(createCallDto.character);
     return this.prisma.call.create({
       data: {
         character: createCallDto.character,
-        chatGPTId: newCall.id,
         createdAt: new Date(),
-        messages: {
-          create: [
-            {
-              audioUrl: '',
-              body: newCall.choices[0].message.content,
-              createdAt: new Date(),
-              isBot: true,
-            },
-          ],
+        prompt: newCallPrompt,
         },
-      },
-    });
+      }
+    );
   }
 
   findAll() {
