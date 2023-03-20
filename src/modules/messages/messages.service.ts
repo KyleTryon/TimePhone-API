@@ -56,6 +56,11 @@ export class MessagesService {
         responseText,
         createdAt: new Date(),
       },
+    }).then((message) => {
+      return {
+        ...message,
+        character: call.character,
+      }
     });
   }
 
