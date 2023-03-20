@@ -1,3 +1,4 @@
+import { Call, Message } from '@prisma/client';
 import { Configuration, OpenAIApi } from 'openai';
 import { Readable } from 'stream';
 export class AI {
@@ -22,8 +23,38 @@ export class AI {
         },
       ],
       n: 1,
+      stop: ['?'],
     });
-    return response.data;
+    const callPrompt = `${prompt} \nYOU: ${response.data.choices[0].message.content}`;
+    return callPrompt;
+  }
+
+  // Returns a completion for an existing call with the new message
+  async continueCall(
+    call: Call & {
+      messages: Message[];
+    },
+    message: string,
+  ) {
+    var callHistoryPrompt = call.prompt;
+    for (const messages of call.messages) {
+      callHistoryPrompt += `\nCALLER: ${messages.messageText}\nYOU: ${messages.responseText}`;
+    }
+
+    const prompt = `${callHistoryPrompt}\nCALLER: ${message}\n YOU:`;
+
+    const response = await this._api.createChatCompletion({
+      model: 'gpt-3.5-turbo',
+      messages: [
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+      n: 1,
+      stop: ['Caller:'],
+    });
+    return response.data.choices[0].message.content;
   }
 
   async transcribeAudioMessage(audio: Express.Multer.File) {

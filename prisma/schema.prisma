@@ -11,23 +11,24 @@ datasource db {
 }
 
 model Call {
-  id          Int       @id @default(autoincrement())
-  chatGPTId   String
-  character   String
+  id        Int       @id @default(autoincrement())
+  character String
   // characterId Int
   // character   Character @relation(fields: [characterId], references: [id])
-  createdAt   DateTime  @default(now())
-  messages    Message[]
+  createdAt DateTime  @default(now())
+  prompt    String
+  messages  Message[]
 }
 
 model Message {
-  id        Int      @id @default(autoincrement())
-  callId    Int
-  call      Call     @relation(fields: [callId], references: [id])
-  audioUrl  String
-  body      String
-  createdAt DateTime @default(now())
-  isBot     Boolean
+  id               Int      @id @default(autoincrement())
+  callId           Int
+  call             Call     @relation(fields: [callId], references: [id])
+  messageAudioUrl  String
+  messageText      String
+  responseAudioUrl String
+  responseText     String
+  createdAt        DateTime @default(now())
 }
 
 // model Character {

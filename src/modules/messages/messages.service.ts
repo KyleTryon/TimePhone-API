@@ -13,25 +13,36 @@ export class MessagesService {
 
   async create(createMessageDto: CreateMessageDto, audio: Express.Multer.File) {
     const storage = new StorageService();
-    const generateKey = () => {
-      const date = new Date();
-      return `${createMessageDto.callId}-${date.getTime()}.mp3`;
-    };
-    const audioKey = generateKey();
-
+    const messageAudioKey = StorageService.generateKey(audio.originalname);
+    // Validate audio file
     if (audio.size < 200) {
       throw new Error('Audio file is too small or missing');
     }
     if (audio.mimetype !== 'audio/mpeg') {
       throw new Error('Audio file must be mp3');
     }
-
-    const savedAudio = await storage.uploadFile(audioKey, audio);
-    if (!savedAudio.httpStatusCode || savedAudio.httpStatusCode !== 200) {
+    // Save messageAudio file
+    const messageAudioUpload = await storage.uploadFile(messageAudioKey, audio);
+    if (!messageAudioUpload.httpStatusCode || messageAudioUpload.httpStatusCode !== 200) {
       throw new Error('Error saving audio file');
     }
-    const transcribedMessage = await ai.transcribeAudioMessage(audio);
-
+    // Transcribe audio file
+    const messageAudioTranscribed = await ai.transcribeAudioMessage(audio);
+    // Validate transcription
+    if (!messageAudioTranscribed.text) {
+      throw new Error('Error transcribing audio file');
+    }
+    // Create response
+    const call = await this.prisma.call.findUnique({
+      where: {
+        id: parseInt(createMessageDto.callId as any),
+      },
+      include: {
+        messages: true,
+      },
+    });
+    const responseText = await ai.continueCall(call, messageAudioTranscribed.text);
+    // Save response
     return this.prisma.message.create({
       data: {
         call: {
@@ -39,11 +50,17 @@ export class MessagesService {
             id: parseInt(createMessageDto.callId as any),
           },
         },
-        body: transcribedMessage.text,
+        messageAudioUrl: StorageService.getFileUrl(messageAudioKey),
+        messageText: messageAudioTranscribed.text,
+        responseAudioUrl: '',
+        responseText,
         createdAt: new Date(),
-        audioUrl: StorageService.getFileUrl(audioKey),
-        isBot: false,
       },
+    }).then((message) => {
+      return {
+        ...message,
+        character: call.character,
+      }
     });
   }
 
