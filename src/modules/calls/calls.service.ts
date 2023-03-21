@@ -10,14 +10,18 @@ export class CallsService {
 
   async create(createCallDto: CreateCallDto) {
     const newCallPrompt = await new AI().startCall(createCallDto.prompt);
-    return this.prisma.call.create({
+    const savedCall = await this.prisma.call.create({
       data: {
         character: createCallDto.character,
         createdAt: new Date(),
-        prompt: newCallPrompt,
+        prompt: newCallPrompt.prompt,
         },
       }
     );
+    return {
+      ...savedCall,
+      responseText: newCallPrompt.responseText,
+    };
   }
 
   findAll() {

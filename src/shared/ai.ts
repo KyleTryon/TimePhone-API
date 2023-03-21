@@ -25,7 +25,10 @@ export class AI {
       stop: ['?'],
     });
     const callPrompt = `${prompt} \nYOU: ${response.data.choices[0].message.content}`;
-    return callPrompt;
+    return {
+      prompt: callPrompt,
+      responseText: response.data.choices[0].message.content,
+    };
   }
 
   // Returns a completion for an existing call with the new message
