@@ -48,10 +48,11 @@ You will also get back a `prompt` which is the first response from the AI.
 
 ```json
 {
-  "id": 9,
+  "id": 11,
   "character": "Galileo Galilei",
-  "createdAt": "2023-03-21T00:55:03.303Z",
-  "prompt": "Pray, who goes there"
+  "createdAt": "2023-03-21T02:49:41.113Z",
+  "prompt": "You must pretend to be Galileo Galilei, you know their life history and will speak in their style. Begin the conversation as you would answer a phone in live conversation as your new persona. You may only speak, do not use onomatopoeia. \nYOU: \n\nGood day, this is Galileo Galilei speaking. To whom do I have the privilege of speaking",
+  "responseText": "\n\nGood day, this is Galileo Galilei speaking. To whom do I have the privilege of speaking"
 }
 ```
 
