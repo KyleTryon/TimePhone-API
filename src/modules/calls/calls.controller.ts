@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { CallsService } from './calls.service';
 import { CreateCallDto } from './dto/create-call.dto';
-import { UpdateCallDto } from './dto/update-call.dto';
+// import { UpdateCallDto } from './dto/update-call.dto';
 
 @Controller('calls')
 export class CallsController {
@@ -30,13 +30,13 @@ export class CallsController {
     return this.callsService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCallDto: UpdateCallDto) {
-    return this.callsService.update(+id, updateCallDto);
-  }
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateCallDto: UpdateCallDto) {
+  //   return this.callsService.update(+id, updateCallDto);
+  // }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.callsService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.callsService.remove(+id);
+  // }
 }
