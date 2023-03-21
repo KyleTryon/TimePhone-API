@@ -22,18 +22,14 @@ export class MessagesService {
       throw new Error('Audio file must be mp3');
     }
     // Save messageAudio file
-    const messageAudioUpload = await storage.uploadFile(messageAudioKey, audio);
-    if (!messageAudioUpload.httpStatusCode || messageAudioUpload.httpStatusCode !== 200) {
-      throw new Error('Error saving audio file');
-    }
+    const messageAudioUploadPromise = await storage.uploadFile(
+      messageAudioKey,
+      audio,
+    );
     // Transcribe audio file
-    const messageAudioTranscribed = await ai.transcribeAudioMessage(audio);
-    // Validate transcription
-    if (!messageAudioTranscribed.text) {
-      throw new Error('Error transcribing audio file');
-    }
-    // Create response
-    const call = await this.prisma.call.findUnique({
+    const messageAudioTranscribedPromise = ai.transcribeAudioMessage(audio);
+    // Get call
+    const callPromise = this.prisma.call.findUnique({
       where: {
         id: parseInt(createMessageDto.callId as any),
       },
@@ -41,27 +37,51 @@ export class MessagesService {
         messages: true,
       },
     });
-    const responseText = await ai.continueCall(call, messageAudioTranscribed.text);
+    // Wait for all promises to resolve
+    const [messageAudioTranscribed, call, messageAudioUpload] =
+      await Promise.all([
+        messageAudioTranscribedPromise,
+        callPromise,
+        messageAudioUploadPromise,
+      ]);
+    // Validate upload
+    if (
+      !messageAudioUpload.httpStatusCode ||
+      messageAudioUpload.httpStatusCode !== 200
+    ) {
+      throw new Error('Error saving audio file');
+    }
+    // Validate transcription
+    if (!messageAudioTranscribed.text) {
+      throw new Error('Error transcribing audio file');
+    }
+    // Create response
+    const responseText = await ai.continueCall(
+      call,
+      messageAudioTranscribed.text,
+    );
     // Save response
-    return this.prisma.message.create({
-      data: {
-        call: {
-          connect: {
-            id: parseInt(createMessageDto.callId as any),
+    return this.prisma.message
+      .create({
+        data: {
+          call: {
+            connect: {
+              id: parseInt(createMessageDto.callId as any),
+            },
           },
+          messageAudioUrl: StorageService.getFileUrl(messageAudioKey),
+          messageText: messageAudioTranscribed.text,
+          responseAudioUrl: '',
+          responseText,
+          createdAt: new Date(),
         },
-        messageAudioUrl: StorageService.getFileUrl(messageAudioKey),
-        messageText: messageAudioTranscribed.text,
-        responseAudioUrl: '',
-        responseText,
-        createdAt: new Date(),
-      },
-    }).then((message) => {
-      return {
-        ...message,
-        character: call.character,
-      }
-    });
+      })
+      .then((message) => {
+        return {
+          ...message,
+          character: call.character,
+        };
+      });
   }
 
   findAll() {
