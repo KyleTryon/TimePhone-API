@@ -16,8 +16,8 @@ export class TranscribeService {
     if (audio.mimetype !== 'audio/mpeg') {
       throw new Error('Audio file must be mp3');
     }
-    const messageAudioTranscribedPromise = ai.transcribeAudioMessage(audio);
-    return (await messageAudioTranscribedPromise).text;
+    const messageAudioTranscribed = await ai.transcribeAudioMessage(audio);
+    return messageAudioTranscribed;
   }
 
   findAll() {
