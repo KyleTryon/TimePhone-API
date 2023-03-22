@@ -7,11 +7,13 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { CallsService } from './calls.service';
 import { CreateCallDto } from './dto/create-call.dto';
 // import { UpdateCallDto } from './dto/update-call.dto';
 
 @Controller('calls')
+@ApiTags('Conversations')
 export class CallsController {
   constructor(private readonly callsService: CallsService) {}
 

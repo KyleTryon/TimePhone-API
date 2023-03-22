@@ -9,7 +9,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('TimePhone API')
-    .setDescription('The TimePhone API description')
+    .setDescription('Communicate with ChatGPT with voice and get audio responses. Uses OpenAI\'s Whisper and ChatGPT, and Google\'s Text-to-Speech.')
     .setVersion('0.1')
     .build();
 
