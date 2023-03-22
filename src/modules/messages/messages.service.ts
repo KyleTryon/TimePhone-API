@@ -14,8 +14,11 @@ export class MessagesService {
     const storage = new StorageService();
     const messageAudioKey = StorageService.generateKey(audio.originalname);
     // Validate audio file
+    if (!audio) {
+      throw new Error('Audio file is missing');
+    }
     if (audio.size < 200) {
-      throw new Error('Audio file is too small or missing');
+      throw new Error('Audio file is too small');
     }
     if (audio.mimetype !== 'audio/mpeg') {
       throw new Error('Audio file must be mp3');
