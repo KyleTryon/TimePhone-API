@@ -6,7 +6,6 @@ import { AI } from 'src/shared/ai';
 import { StorageService } from 'src/shared/storage';
 
 const ai = new AI();
-
 @Injectable()
 export class MessagesService {
   constructor(private prisma: PrismaService) {}
