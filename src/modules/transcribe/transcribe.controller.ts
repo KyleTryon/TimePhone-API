@@ -1,9 +1,19 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseInterceptors,
+  UploadedFile,
+} from '@nestjs/common';
 import { TranscribeService } from './transcribe.service';
 import { CreateTranscribeDto } from './dto/create-transcribe.dto';
 import { UpdateTranscribeDto } from './dto/update-transcribe.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller('transcribe')
 @ApiTags('Transcribe')
@@ -16,6 +26,18 @@ export class TranscribeController {
   @ApiBody({
     description: 'Audio to transcribe. Must be in .mp3 format.',
     type: CreateTranscribeDto,
+  })
+  @ApiOkResponse({
+    description: 'Transcription created successfully.',
+    schema: {
+      type: 'object',
+      properties: {
+        text: { type: 'string' },
+      },
+      example: {
+        text: 'Hello, my name is John Doe.',
+      },
+    },
   })
   create(@UploadedFile() audio: Express.Multer.File) {
     return this.transcribeService.create(audio);

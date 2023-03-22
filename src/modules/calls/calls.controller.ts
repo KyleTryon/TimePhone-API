@@ -7,7 +7,7 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { CallsService } from './calls.service';
 import { CreateCallDto } from './dto/create-call.dto';
 // import { UpdateCallDto } from './dto/update-call.dto';
@@ -18,6 +18,10 @@ export class CallsController {
   constructor(private readonly callsService: CallsService) {}
 
   @Post()
+  @ApiBody({
+    description: 'Create a new call and get the first response.',
+    type: CreateCallDto,
+  })
   create(@Body() createCallDto: CreateCallDto) {
     return this.callsService.create(createCallDto);
   }
