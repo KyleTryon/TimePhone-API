@@ -4,6 +4,12 @@ import { Readable } from 'stream';
 export class AI {
   private _apiKey: string;
   private _api: OpenAIApi;
+  config = {
+    identifier: {
+      caller: 'CALLER:',
+      character: 'YOU:',
+    }
+  }
   constructor(apiKey = process.env.OPENAI_API_KEY) {
     this._apiKey = apiKey;
     const config = new Configuration({
@@ -24,7 +30,7 @@ export class AI {
       n: 1,
       stop: ['?'],
     });
-    const callPrompt = `${prompt} \nYOU: ${response.data.choices[0].message.content}`;
+    const callPrompt = `${prompt} \n${this.config.identifier.character} ${response.data.choices[0].message.content}`;
     return {
       prompt: callPrompt,
       responseText: response.data.choices[0].message.content,
@@ -40,10 +46,10 @@ export class AI {
   ) {
     var callHistoryPrompt = call.prompt;
     for (const messages of call.messages) {
-      callHistoryPrompt += `\nCALLER: ${messages.messageText}\nYOU: ${messages.responseText}`;
+      callHistoryPrompt += `\n${this.config.identifier.caller} ${messages.messageText}\n${this.config.identifier.character} ${messages.responseText}`;
     }
 
-    const prompt = `${callHistoryPrompt}\nCALLER: ${message}\n YOU:`;
+    const prompt = `${callHistoryPrompt}\n${this.config.identifier.caller} ${message}\n${this.config.identifier.character}`;
 
     const response = await this._api.createChatCompletion({
       model: 'gpt-3.5-turbo',
@@ -54,7 +60,7 @@ export class AI {
         },
       ],
       n: 1,
-      stop: ['Caller:'],
+      stop: ['${this.config.identifier.caller}'],
     });
     return response.data.choices[0].message.content;
   }
