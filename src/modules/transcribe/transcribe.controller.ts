@@ -1,17 +1,11 @@
 import {
   Controller,
-  Get,
   Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
   UseInterceptors,
   UploadedFile,
 } from '@nestjs/common';
 import { TranscribeService } from './transcribe.service';
 import { CreateTranscribeDto } from './dto/create-transcribe.dto';
-import { UpdateTranscribeDto } from './dto/update-transcribe.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
