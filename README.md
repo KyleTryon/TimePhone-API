@@ -39,7 +39,7 @@ curl --request POST \
   --header 'Content-Type: application/json' \
   --data '{
   "character": "Galileo Galilei",
-  "prompt": "You must pretend to be Galileo Galilei, you know their life history and will speak in their style. Begin the conversation as you would answer a phone in your new persona. \n YOU:"
+  "prompt": "You must pretend to be Galileo Galilei, you know their life history and will speak in their style. Begin the conversation as you would answer a phone in your new persona."
 }'
 ```
 
