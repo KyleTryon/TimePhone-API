@@ -50,4 +50,8 @@ export class StorageService {
   static getFileUrl(key: string) {
     return `${process.env.AWS_S3_ENDPOINT}/${process.env.AWS_S3_BUCKET}/${key}`;
   }
+
+  static convertToMulterFile(meta: Partial<Express.Multer.File>): Express.Multer.File {
+    return {...meta} as Express.Multer.File;
+  }
 }
