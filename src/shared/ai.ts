@@ -1,9 +1,13 @@
 import { Call, Message } from '@prisma/client';
 import { Configuration, OpenAIApi } from 'openai';
 import { Readable } from 'stream';
+import * as TTS from '@google-cloud/text-to-speech';
+
 export class AI {
-  private _apiKey: string;
-  private _api: OpenAIApi;
+  private _oaiKey: string;
+  private _oai: OpenAIApi;
+  private _tts: TTS.TextToSpeechClient;
+  private _ttsKey: string;
   config = {
     identifier: {
       caller: 'CALLER',
@@ -11,12 +15,29 @@ export class AI {
     },
     rules: [],
   };
-  constructor(apiKey = process.env.OPENAI_API_KEY) {
-    this._apiKey = apiKey;
+  constructor(
+    openAIKey = process.env.OPENAI_API_KEY,
+    ttsKey = process.env.GCP_TTS_SERVICE_JSON,
+  ) {
+    this._oaiKey = openAIKey;
+    this._ttsKey = ttsKey
+      ? ttsKey
+      : (() => {
+          throw new Error('GCP TTS API Key is missing');
+        })();
     const config = new Configuration({
-      apiKey: this._apiKey,
+      apiKey: this._oaiKey,
     });
-    this._api = new OpenAIApi(config);
+    this._oai = new OpenAIApi(config);
+    this._tts = new TTS.TextToSpeechClient({
+      credentials: JSON.parse(this._ttsKey),
+    });
+    // validate tts
+    this._tts.listVoices({}).then((res) => {
+      if (!res[0].voices) {
+        throw new Error('Error validating GCP TTS API Key');
+      }
+    });
     this.config.rules = [
       'Do not use onomatopoeia.',
       `You must begin each response with "${this.config.identifier.character}: "`,
@@ -29,7 +50,7 @@ export class AI {
       this.config.rules.join(' '),
       `\n${this.config.identifier.character}: `,
     );
-    const response = await this._api.createChatCompletion({
+    const response = await this._oai.createChatCompletion({
       model: 'gpt-3.5-turbo',
       messages: [
         {
@@ -38,7 +59,7 @@ export class AI {
         },
       ],
       n: 1,
-      stop: [this.config.identifier.caller, "Caller:"],
+      stop: [this.config.identifier.caller, 'Caller:'],
     });
     const callPrompt = `${completePrompt} \n${this.config.identifier.character}: ${response.data.choices[0].message.content}`;
     return {
@@ -61,7 +82,7 @@ export class AI {
 
     const prompt = `${callHistoryPrompt}\n${this.config.identifier.caller}: ${message} \n${this.config.identifier.character}: `;
 
-    const response = await this._api.createChatCompletion({
+    const response = await this._oai.createChatCompletion({
       model: 'gpt-3.5-turbo',
       messages: [
         {
@@ -79,7 +100,7 @@ export class AI {
     const audioStream = Readable.from(audio.buffer);
     // @ts-expect-error: path is not a valid property
     audioStream.path = audio.originalname;
-    const response = await this._api.createTranscription(
+    const response = await this._oai.createTranscription(
       audioStream as any,
       'whisper-1',
     );
