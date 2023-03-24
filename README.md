@@ -7,9 +7,10 @@ The TimePhone-API powers the magical payphone with the power to contact anyone, 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
 1. `npm install`
-1. Configure your `.env` file. You will need an OpenAI API key.
-1. `docker compose up -d` to start the database and minio.
 1. `npm run migrate`
+1. `docker compose up -d` to start the database and minio.
+1. Configure mini as shown in the [Storage](docs/Storage.md) documentation.
+1. Configure your `.env` file.
 1. `npm run start`
 1. Navigate to `http://localhost:3000/api` for Swagger documentation.
 
@@ -18,6 +19,7 @@ These instructions will get you a copy of the project up and running on your loc
 ```sh
 DATABASE_URL="postgresql://user:password@localhost:5433/time-phone?schema=public"
 OPENAI_API_KEY=""
+GCP_TTS_SERVICE_JSON='<json>'
 AWS_ACCESS_KEY_ID=""
 AWS_SECRET_ACCESS_KEY=""
 AWS_S3_ENDPOINT="http://minio:9000"
