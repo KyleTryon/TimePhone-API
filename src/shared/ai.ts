@@ -130,11 +130,11 @@ export class AI {
       originalname: `${key}.mp3`,
       mimetype: 'audio/mpeg',
     } as Express.Multer.File;
-    const fileUpload = await this._storage.uploadFile(key, audioFile);
+    const fileUpload = await this._storage.uploadFile(`${key}.mp3`, audioFile);
     if (fileUpload.httpStatusCode !== 200) {
       throw new Error('Error uploading audio file');
     }
-    const fileURL = StorageService.getFileUrl(key);
+    const fileURL = StorageService.getFileUrl(`${key}.mp3`);
     return fileURL;
   }
 }
