@@ -11,7 +11,6 @@ export class MessagesService {
   constructor(private prisma: PrismaService) {}
 
   async create(createMessageDto: CreateMessageDto, audio: Express.Multer.File) {
-    const storage = new StorageService();
     const messageAudioKey = StorageService.generateKey(audio.originalname);
     // Validate audio file
     if (!audio) {
@@ -23,11 +22,6 @@ export class MessagesService {
     if (audio.mimetype !== 'audio/mpeg') {
       throw new Error('Audio file must be mp3');
     }
-    // Save messageAudio file
-    const messageAudioUploadPromise = await storage.uploadFile(
-      messageAudioKey,
-      audio,
-    );
     // Transcribe audio file
     const messageAudioTranscribedPromise = ai.transcribeAudioMessage(audio);
     // Get call
@@ -40,19 +34,11 @@ export class MessagesService {
       },
     });
     // Wait for all promises to resolve
-    const [messageAudioTranscribed, call, messageAudioUpload] =
+    const [messageAudioTranscribed, call] =
       await Promise.all([
         messageAudioTranscribedPromise,
-        callPromise,
-        messageAudioUploadPromise,
+        callPromise
       ]);
-    // Validate upload
-    if (
-      !messageAudioUpload.httpStatusCode ||
-      messageAudioUpload.httpStatusCode !== 200
-    ) {
-      throw new Error('Error saving audio file');
-    }
     // Validate transcription
     if (!messageAudioTranscribed.text) {
       throw new Error('Error transcribing audio file');

@@ -1,8 +1,9 @@
 import {
+  GetObjectCommand,
   PutObjectCommand,
   S3Client,
-  GetObjectAclCommand,
 } from '@aws-sdk/client-s3';
+import { Readable } from 'stream';
 
 export class StorageService {
   private s3: S3Client = new S3Client({
@@ -29,17 +30,19 @@ export class StorageService {
     }
   }
 
-  async getFile(key: string) {
-    const getObjectCommand = new GetObjectAclCommand({
+  async getFile(key: string): Promise<Express.Multer.File> {
+    const getObjectCommand = new GetObjectCommand({
       Bucket: process.env.AWS_S3_BUCKET,
       Key: key,
     });
-    try {
-      const data = await this.s3.send(getObjectCommand);
-      return data.$metadata;
-    } catch (error) {
-      console.log(error);
-    }
+    const data = await this.s3.send(getObjectCommand);
+    return StorageService.convertToMulterFile({
+      buffer: Buffer.from(await data.Body.transformToByteArray()),
+      mimetype: data.ContentType,
+      size: data.ContentLength,
+      stream: data.Body as Readable,
+      filename: key,
+    });
   }
 
   static generateKey(filename: string) {
@@ -49,5 +52,9 @@ export class StorageService {
   
   static getFileUrl(key: string) {
     return `${process.env.AWS_S3_ENDPOINT}/${process.env.AWS_S3_BUCKET}/${key}`;
+  }
+
+  static convertToMulterFile(meta: Partial<Express.Multer.File>): Express.Multer.File {
+    return {...meta} as Express.Multer.File;
   }
 }
