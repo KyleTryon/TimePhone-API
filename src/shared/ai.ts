@@ -2,12 +2,14 @@ import { Call, Message } from '@prisma/client';
 import { Configuration, OpenAIApi } from 'openai';
 import { Readable } from 'stream';
 import * as TTS from '@google-cloud/text-to-speech';
+import { StorageService } from './storage';
 
 export class AI {
   private _oaiKey: string;
   private _oai: OpenAIApi;
   private _tts: TTS.TextToSpeechClient;
   private _ttsKey: string;
+  private _storage: StorageService;
   config = {
     identifier: {
       caller: 'CALLER',
@@ -19,6 +21,7 @@ export class AI {
     openAIKey = process.env.OPENAI_API_KEY,
     ttsKey = process.env.GCP_TTS_SERVICE_JSON,
   ) {
+    this._storage = new StorageService();
     this._oaiKey = openAIKey;
     this._ttsKey = ttsKey
       ? ttsKey
@@ -105,5 +108,33 @@ export class AI {
       'whisper-1',
     );
     return response.data;
+  }
+
+  async textToSpeech(text: string, key: string) {
+    const response = await this._tts.synthesizeSpeech({
+      input: { text },
+      voice: {
+        languageCode: 'en-US',
+        name: 'en-US-Wavenet-A',
+      },
+      audioConfig: {
+        audioEncoding: 'MP3',
+      },
+    });
+    const audioBuffer = Buffer.from(response[0].audioContent);
+    const audioFile = {
+      buffer: audioBuffer,
+      filename: `${key}.mp3`,
+      size: audioBuffer.length,
+      fieldname: 'audio',
+      originalname: `${key}.mp3`,
+      mimetype: 'audio/mpeg',
+    } as Express.Multer.File;
+    const fileUpload = await this._storage.uploadFile(key, audioFile);
+    if (fileUpload.httpStatusCode !== 200) {
+      throw new Error('Error uploading audio file');
+    }
+    const fileURL = StorageService.getFileUrl(key);
+    return fileURL;
   }
 }
