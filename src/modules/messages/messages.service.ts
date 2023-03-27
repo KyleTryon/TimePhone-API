@@ -10,16 +10,19 @@ const ai = new AI();
 export class MessagesService {
   constructor(private prisma: PrismaService) {}
 
+  /**
+   * Create a new user message from an audio file, for an existing call
+   * @param createMessageDto
+   * @param audio
+   * @returns Promise<Message[]>
+   */
   async create(createMessageDto: CreateMessageDto, audio: Express.Multer.File) {
-    const messageAudioKey = StorageService.generateKey(audio.originalname);
     // Validate audio file
     if (!audio) {
       throw new Error('Audio file is missing');
-    }
-    if (audio.size < 200) {
+    } else if (audio.size < 200) {
       throw new Error('Audio file is too small');
-    }
-    if (audio.mimetype !== 'audio/mpeg') {
+    } else if (audio.mimetype !== 'audio/mpeg') {
       throw new Error('Audio file must be mp3');
     }
     // Transcribe audio file
@@ -30,15 +33,18 @@ export class MessagesService {
         id: parseInt(createMessageDto.callId as any),
       },
       include: {
-        messages: true,
+        messages: {
+          orderBy: {
+            id: 'desc',
+          }
+        }
       },
     });
     // Wait for all promises to resolve
-    const [messageAudioTranscribed, call] =
-      await Promise.all([
-        messageAudioTranscribedPromise,
-        callPromise
-      ]);
+    const [messageAudioTranscribed, call] = await Promise.all([
+      messageAudioTranscribedPromise,
+      callPromise,
+    ]);
     // Validate transcription
     if (!messageAudioTranscribed.text) {
       throw new Error('Error transcribing audio file');
@@ -48,28 +54,21 @@ export class MessagesService {
       call,
       messageAudioTranscribed.text,
     );
-    // Save response
-    return this.prisma.message
-      .create({
-        data: {
-          call: {
-            connect: {
-              id: parseInt(createMessageDto.callId as any),
-            },
-          },
-          messageAudioUrl: StorageService.getFileUrl(messageAudioKey),
-          messageText: messageAudioTranscribed.text,
-          responseAudioUrl: '',
-          responseText,
-          createdAt: new Date(),
+    // Add user message and response message to call
+    const messages = await this.prisma.message.createMany({
+      data: [
+        {
+          callId: parseInt(createMessageDto.callId as any),
+          text: messageAudioTranscribed.text,
         },
-      })
-      .then((message) => {
-        return {
-          ...message,
-          character: call.character,
-        };
-      });
+        {
+          callId: parseInt(createMessageDto.callId as any),
+          text: responseText.choices[0].message.content,
+          role: 'assistant',
+        },
+      ],
+    });
+   return messages;
   }
 
   findAll() {
