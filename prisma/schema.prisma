@@ -24,11 +24,16 @@ model Message {
   id               Int      @id @default(autoincrement())
   callId           Int
   call             Call     @relation(fields: [callId], references: [id])
-  messageAudioUrl  String
-  messageText      String
-  responseAudioUrl String
-  responseText     String
+  audioUrl         String?
+  text             String
+  role             ChatGPTMessageRole @default(user)
   createdAt        DateTime @default(now())
+}
+
+enum ChatGPTMessageRole {
+  assistant
+  system
+  user
 }
 
 // model Character {

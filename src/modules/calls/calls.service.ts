@@ -3,24 +3,39 @@ import { CreateCallDto } from './dto/create-call.dto';
 import { UpdateCallDto } from './dto/update-call.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { AI } from '../../shared/ai';
+import { ChatCompletionResponseMessageRoleEnum } from 'openai';
 
 @Injectable()
 export class CallsService {
   constructor(private prisma: PrismaService) {}
 
   async create(createCallDto: CreateCallDto) {
-    const newCallPrompt = await new AI().startCall(createCallDto.prompt);
-    const savedCall = await this.prisma.call.create({
+    const newCallResponse = await new AI().startCall(createCallDto.prompt);
+    const newCall = await this.prisma.call.create({
       data: {
         character: createCallDto.character,
-        createdAt: new Date(),
-        prompt: newCallPrompt.prompt,
+        prompt: createCallDto.prompt,
+        messages: {
+          createMany: {
+            data: [
+              {
+                text: newCallResponse.callPrompt,
+                role: 'system',
+              },
+              {
+                text: newCallResponse.response.content,
+                role: newCallResponse.response.role as ChatCompletionResponseMessageRoleEnum,
+              },
+            ],
+          },
         },
-      }
-    );
+      },
+    });
     return {
-      ...savedCall,
-      responseText: newCallPrompt.responseText,
+      ...newCall,
+      response: {
+        text: newCallResponse.response.content,
+      },
     };
   }
 
