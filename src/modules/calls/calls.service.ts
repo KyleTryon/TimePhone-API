@@ -11,28 +11,32 @@ export class CallsService {
 
   async create(createCallDto: CreateCallDto) {
     const newCallResponse = await new AI().startCall(createCallDto.prompt);
-    // const newCall = await this.prisma.call.create({
-    //   data: {
-    //     character: createCallDto.character,
-    //     prompt: createCallDto.prompt,
-    //     messages: {
-    //       createMany: {
-    //         data: [
-    //           {
-    //             text: createCallDto.prompt,
-    //             role: 'system',
-    //           },
-    //           {
-    //             text: newCallResponse.choices[0].message.content,
-    //             role: newCallResponse.choices[0].message
-    //               .role as ChatCompletionResponseMessageRoleEnum,
-    //           },
-    //         ],
-    //       },
-    //     },
-    //   },
-    // });
-    return 'x';
+    const newCall = await this.prisma.call.create({
+      data: {
+        character: createCallDto.character,
+        prompt: createCallDto.prompt,
+        messages: {
+          createMany: {
+            data: [
+              {
+                text: newCallResponse.callPrompt,
+                role: 'system',
+              },
+              {
+                text: newCallResponse.response.content,
+                role: newCallResponse.response.role as ChatCompletionResponseMessageRoleEnum,
+              },
+            ],
+          },
+        },
+      },
+    });
+    return {
+      ...newCall,
+      response: {
+        text: newCallResponse.response.content,
+      },
+    };
   }
 
   findAll() {

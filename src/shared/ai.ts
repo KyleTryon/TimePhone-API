@@ -42,23 +42,21 @@ export class AI {
   }
 
   async startCall(prompt: string) {
+    const callPrompt = prompt.concat(this.config.rules.join(' '));
     const promptMessage = this._createChatCompletionRequestMessage(
-      prompt,
+      callPrompt,
       'system',
     );
-
     const response = await this._oai.createChatCompletion({
       model: 'gpt-3.5-turbo',
-      messages: [
-        {
-          role: 'user',
-          content: 'test',
-        },
-      ],
+      messages: [promptMessage],
       n: 1,
-      stop: [],
+      stop: ['\n'],
     });
-    return response.data;
+    return {
+      callPrompt: callPrompt,
+      response: response.data.choices[0].message,
+    };
   }
 
   // Returns a completion for an existing call with the new message
@@ -79,7 +77,6 @@ export class AI {
         this._createChatCompletionRequestMessage(message, 'user'),
       ],
       n: 1,
-      stop: [],
     });
 
     return response.data;

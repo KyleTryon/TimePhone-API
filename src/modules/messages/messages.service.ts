@@ -14,7 +14,6 @@ export class MessagesService {
    * Create a new user message from an audio file, for an existing call
    * @param createMessageDto
    * @param audio
-   * @returns Promise<Message[]>
    */
   async create(createMessageDto: CreateMessageDto, audio: Express.Multer.File) {
     // Validate audio file
@@ -68,7 +67,15 @@ export class MessagesService {
         },
       ],
     });
-   return messages;
+   return {
+      callId: parseInt(createMessageDto.callId as any),
+      request: {
+        text: messageAudioTranscribed.text,
+      },
+      response: {
+        text: responseText.choices[0].message.content,
+      },
+   };
   }
 
   findAll() {
