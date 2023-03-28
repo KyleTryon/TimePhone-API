@@ -12,10 +12,17 @@ export class CallsService {
   async create(createCallDto: CreateCallDto) {
     const ai = new AI();
     const newCharacter = await ai.getCharacter(createCallDto.character);
-    const newCallResponse = await ai.startCall(createCallDto.prompt);
+    const newCallResponse = await ai.startCall(createCallDto.prompt, newCharacter);
     const newCall = await this.prisma.call.create({
       data: {
-        character: createCallDto.character,
+        character: {
+          create: {
+            name: newCharacter.name,
+            voiceName: newCharacter.voice,
+            gender: newCharacter.gender,
+            languageCode: newCharacter.languageCode,
+          }
+        },
         prompt: createCallDto.prompt,
         messages: {
           createMany: {
@@ -37,6 +44,7 @@ export class CallsService {
       ...newCall,
       response: {
         text: newCallResponse.response.content,
+        voice: newCharacter.voice
       },
     };
   }

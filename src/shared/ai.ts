@@ -28,7 +28,6 @@ export class AI {
     });
     this._oai = new OpenAIApi(config);
 
-
     this._tts = new TTS.TextToSpeechClient({
       credentials: GCPAuthJson,
     });
@@ -41,7 +40,7 @@ export class AI {
     this.config.rules = ['Do not use onomatopoeia.'];
   }
 
-  async startCall(prompt: string) {
+  async startCall(prompt: string, character: CharacterModel) {
     const callPrompt = prompt.concat(this.config.rules.join(' '));
     const promptMessage = this._createChatCompletionRequestMessage(
       callPrompt,
@@ -93,12 +92,12 @@ export class AI {
     return response.data;
   }
 
-  async textToSpeech(text: string, key: string) {
+  async textToSpeech(text: string, key: string, character?: CharacterModel) {
     const response = await this._tts.synthesizeSpeech({
       input: { text },
       voice: {
-        languageCode: 'en-US',
-        name: 'en-US-Wavenet-A',
+        languageCode: character.languageCode ?? 'en-US',
+        name: character.voice ?? 'en-US-Wavenet-A',
       },
       audioConfig: {
         audioEncoding: 'MP3',
@@ -140,8 +139,7 @@ Return a character with the name '${name}'
       ],
       n: 1,
     });
-    const response = (await request).data.choices[0].message
-      .content as unknown;
+    const response = (await request).data.choices[0].message.content as unknown;
     let character: CharacterModel;
     try {
       character = JSON.parse(response as string);
@@ -155,10 +153,14 @@ Return a character with the name '${name}'
   async selectVoice(character: CharacterModel) {
     const [allVoices] = await this._tts.listVoices({});
     const possibleVoices = allVoices.voices.filter((voice) => {
-      return voice.languageCodes.includes(character.languageCode) && voice.ssmlGender === character.gender;
+      return (
+        voice.languageCodes.includes(character.languageCode) &&
+        voice.ssmlGender === character.gender
+      );
     });
     // Select a random voice from the list of possible voices
-    const voice = possibleVoices[Math.floor(Math.random() * possibleVoices.length)];
+    const voice =
+      possibleVoices[Math.floor(Math.random() * possibleVoices.length)];
     return voice.name;
   }
 
@@ -172,7 +174,6 @@ Return a character with the name '${name}'
     };
     return message;
   }
-
 }
 interface CharacterModel {
   name: string;
