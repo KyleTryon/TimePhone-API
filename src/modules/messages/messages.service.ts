@@ -35,8 +35,8 @@ export class MessagesService {
         messages: {
           orderBy: {
             id: 'desc',
-          }
-        }
+          },
+        },
       },
     });
     // Wait for all promises to resolve
@@ -53,6 +53,14 @@ export class MessagesService {
       call,
       messageAudioTranscribed.text,
     );
+    const responseAudioKey = StorageService.generateKeyFromString(
+      responseText.choices[0].message.content,
+    );
+    // Dictate response
+    const responseAudio = await ai.textToSpeech(
+      responseText.choices[0].message.content,
+      responseAudioKey,
+    );
     // Add user message and response message to call
     const messages = await this.prisma.message.createMany({
       data: [
@@ -67,15 +75,16 @@ export class MessagesService {
         },
       ],
     });
-   return {
+    return {
       callId: parseInt(createMessageDto.callId as any),
       request: {
         text: messageAudioTranscribed.text,
       },
       response: {
         text: responseText.choices[0].message.content,
+        audio: responseAudio,
       },
-   };
+    };
   }
 
   findAll() {

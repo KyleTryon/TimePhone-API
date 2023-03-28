@@ -45,16 +45,23 @@ export class StorageService {
     });
   }
 
-  static generateKey(filename: string) {
+  static generateKeyFromString(str: string) {
+    const filename = str.replace(/[^a-z0-9]+/gi, '-').toLowerCase();
+    return this.generateKeyFromFile(filename);
+  }
+
+  static generateKeyFromFile(filename: string) {
     const date = new Date();
     return `${date.getTime()}-${filename}`;
   }
-  
+
   static getFileUrl(key: string) {
     return `${process.env.AWS_S3_ENDPOINT}/${process.env.AWS_S3_BUCKET}/${key}`;
   }
 
-  static convertToMulterFile(meta: Partial<Express.Multer.File>): Express.Multer.File {
-    return {...meta} as Express.Multer.File;
+  static convertToMulterFile(
+    meta: Partial<Express.Multer.File>,
+  ): Express.Multer.File {
+    return { ...meta } as Express.Multer.File;
   }
 }
