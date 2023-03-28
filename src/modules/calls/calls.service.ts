@@ -10,7 +10,9 @@ export class CallsService {
   constructor(private prisma: PrismaService) {}
 
   async create(createCallDto: CreateCallDto) {
-    const newCallResponse = await new AI().startCall(createCallDto.prompt);
+    const ai = new AI();
+    const newCharacter = await ai.getCharacter(createCallDto.character);
+    const newCallResponse = await ai.startCall(createCallDto.prompt);
     const newCall = await this.prisma.call.create({
       data: {
         character: createCallDto.character,
