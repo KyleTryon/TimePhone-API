@@ -11,23 +11,22 @@ datasource db {
 }
 
 model Call {
-  id        Int       @id @default(autoincrement())
-  character String
-  // characterId Int
-  // character   Character @relation(fields: [characterId], references: [id])
-  createdAt DateTime  @default(now())
-  prompt    String
-  messages  Message[]
+  id          Int       @id @default(autoincrement())
+  characterId Int
+  character   Character @relation(fields: [characterId], references: [id])
+  createdAt   DateTime  @default(now())
+  prompt      String
+  messages    Message[]
 }
 
 model Message {
-  id               Int      @id @default(autoincrement())
-  callId           Int
-  call             Call     @relation(fields: [callId], references: [id])
-  audioUrl         String?
-  text             String
-  role             ChatGPTMessageRole @default(user)
-  createdAt        DateTime @default(now())
+  id        Int                @id @default(autoincrement())
+  callId    Int
+  call      Call               @relation(fields: [callId], references: [id])
+  audioUrl  String?
+  text      String
+  role      ChatGPTMessageRole @default(user)
+  createdAt DateTime           @default(now())
 }
 
 enum ChatGPTMessageRole {
@@ -36,10 +35,18 @@ enum ChatGPTMessageRole {
   user
 }
 
-// model Character {
-//   id        Int      @id @default(autoincrement())
-//   name      String
-//   voiceName String
-//   createdAt DateTime @default(now())
-//   Calls      Call[]
-// }
+enum CharacterGender {
+  MALE
+  FEMALE
+  NEUTRAL
+}
+
+model Character {
+  id           Int             @id @default(autoincrement())
+  name         String
+  voiceName    String
+  gender       CharacterGender
+  languageCode String
+  createdAt    DateTime        @default(now())
+  Calls        Call[]
+}

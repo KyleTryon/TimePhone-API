@@ -37,6 +37,7 @@ export class MessagesService {
             id: 'desc',
           },
         },
+        character: true,
       },
     });
     // Wait for all promises to resolve
@@ -60,6 +61,12 @@ export class MessagesService {
     const responseAudio = await ai.textToSpeech(
       responseText.choices[0].message.content,
       responseAudioKey,
+      {
+        voice: call.character.voiceName,
+        gender: call.character.gender,
+        languageCode: call.character.languageCode,
+        name: call.character.name,
+      }
     );
     // Add user message and response message to call
     const messages = await this.prisma.message.createMany({
@@ -83,6 +90,7 @@ export class MessagesService {
       response: {
         text: responseText.choices[0].message.content,
         audio: responseAudio,
+        voice: call.character.voiceName,
       },
     };
   }
