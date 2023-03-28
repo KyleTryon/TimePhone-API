@@ -10,7 +10,7 @@ These instructions will get you a copy of the project up and running on your loc
 1. `npm run migrate`
 1. `docker compose up -d` to start the database and minio.
 1. Configure mini as shown in the [Storage](docs/Storage.md) documentation.
-1. Configure your `.env` file.
+1. Configure your `.env` file, example below. See the [Secrets](docs/Secrets.md) documentation for more information.
 1. `npm run start`
 1. Navigate to `http://localhost:3000/api` for Swagger documentation.
 
