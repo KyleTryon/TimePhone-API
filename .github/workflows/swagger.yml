@@ -15,8 +15,8 @@ jobs:
         run: npm install
       - name: Build
         run: npm run build
-      - name: Run in background
-        run: nohup npm run start:prod
+      - name: Run server in background
+        run: nohup npm run start:prod > /dev/null 2>&1 &
       - name: Wait for server to start
         run: while ! curl --output /dev/null --silent --head --fail http://localhost:3000; do sleep 1; done
       - name: Generate Swagger UI
