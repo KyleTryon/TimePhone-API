@@ -15,7 +15,14 @@ Google authentication is handled with a service account and a JSON key file.
 
 1. Create a new [service account](https://console.cloud.google.com/iam-admin/serviceaccounts) in GCP.
 2. Create a new [key](https://console.cloud.google.com/apis/credentials/serviceaccountkey) for the service account.
-3. Download the key file and save it as `.gcpAuth.env.json` in the root of the project.
+3. Download the key file
+4. Base64 encode the key file to a single line and add it to the `.env` file as `GCP_AUTHJSON_BASE64`.
+
+```sh
+# To base64 encode the key file
+cat file.json | base64 | tr -d '                                                                                                                               INT х  11s  techsquid@myhomeserver 
+'
+```
 
 ## Storage
 

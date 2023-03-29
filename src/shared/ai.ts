@@ -3,7 +3,6 @@ import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from 'openai';
 import { Readable } from 'stream';
 import * as TTS from '@google-cloud/text-to-speech';
 import { StorageService } from './storage';
-import GCPAuthJson from '../../.gcpAuth.env.json';
 
 type ChatCompletionRequestMessageRole = 'system' | 'user' | 'assistant';
 export class AI {
@@ -15,21 +14,20 @@ export class AI {
   config = {
     rules: [],
   };
-  constructor(openAIKey = process.env.OPENAI_API_KEY, ttsKey = GCPAuthJson) {
+  constructor(
+    openAIKey = process.env.OPENAI_API_KEY,
+    ttsKey = process.env.GCP_AUTHJSON_BASE64,
+  ) {
     this._storage = new StorageService();
     this._oaiKey = openAIKey;
-    this._ttsKey = ttsKey
-      ? ttsKey
-      : (() => {
-          throw new Error('GCP TTS API Key is missing');
-        })();
+    this._ttsKey = JSON.parse(Buffer.from(ttsKey, 'base64').toString('ascii'));
     const config = new Configuration({
       apiKey: this._oaiKey,
     });
     this._oai = new OpenAIApi(config);
 
     this._tts = new TTS.TextToSpeechClient({
-      credentials: GCPAuthJson,
+      credentials: this._ttsKey,
     });
     // validate tts
     this._tts.listVoices({}).then((res) => {

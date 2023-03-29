@@ -19,6 +19,7 @@ These instructions will get you a copy of the project up and running on your loc
 ```sh
 DATABASE_URL="postgresql://user:password@localhost:5433/time-phone?schema=public"
 OPENAI_API_KEY=""
+GCP_AUTHJSON_BASE64=""
 AWS_ACCESS_KEY_ID=""
 AWS_SECRET_ACCESS_KEY=""
 AWS_S3_ENDPOINT="http://minio:9000"
