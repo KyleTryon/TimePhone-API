@@ -4,7 +4,7 @@ import { UpdateCallDto } from './dto/update-call.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { AI } from '../../shared/ai';
 import { ChatCompletionResponseMessageRoleEnum } from 'openai';
-import { StorageService } from 'src/shared/storage';
+import { StorageService } from '../../shared/storage';
 
 @Injectable()
 export class CallsService {
