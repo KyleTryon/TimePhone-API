@@ -8,7 +8,9 @@ async function generateSwaggerJSON() {
 
   const options = new DocumentBuilder()
     .setTitle('TimePhone-API')
-    .setDescription('The Magic TimePhone as a Service!')
+    .setDescription(
+      'The Magic TimePhone as a Service! Powered by ChatGPT, Whisper, and Google Cloud Text-to-Speech. See the GitHub repo at https://github.com/KyleTryon/TimePhone-API',
+    )
     .setVersion('0.1.0')
     .build();
 
