@@ -13,20 +13,16 @@ jobs:
           node-version: 18.x
       - name: Install dependencies
         run: npm install
-      - name: Build
-        run: npm run build
-      - name: Run server in background
-        run: nohup npm run start:prod > /dev/null 2>&1 &
+      - name: Generate Swagger JSON
+        run: npm run swagger:generate
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GCP_AUTHJSON_BASE64: ${{ secrets.GCP_AUTHJSON_BASE64 }}
-      - name: Wait for server to start
-        run: while ! curl --output /dev/null --silent --head --fail http://localhost:3000; do sleep 1; done
       - name: Generate Swagger UI
         uses: Legion2/swagger-ui-action@v1
         with:
           output: swagger-ui
-          spec-url: http://localhost:3000/api
+          spec-file: swagger.json
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         if: github.ref == 'refs/heads/main'
