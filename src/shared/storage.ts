@@ -51,8 +51,9 @@ export class StorageService {
   }
 
   static generateKeyFromFile(filename: string) {
+    const shortFilename = filename.substring(0, 25);
     const date = new Date();
-    return `${date.getTime()}-${filename}`;
+    return `${date.getTime()}-${shortFilename}`;
   }
 
   static getFileUrl(key: string) {
