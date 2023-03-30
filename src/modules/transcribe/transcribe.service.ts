@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateTranscribeDto } from './dto/create-transcribe.dto';
 import { UpdateTranscribeDto } from './dto/update-transcribe.dto';
-import { AI } from 'src/shared/ai';
+import { AI } from '../../shared/ai';
 
 const ai = new AI();
 @Injectable()

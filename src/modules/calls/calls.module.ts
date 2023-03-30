@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CallsService } from './calls.service';
 import { CallsController } from './calls.controller';
-import { PrismaModule } from 'src/modules/prisma/prisma.module';
+import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
   controllers: [CallsController],
