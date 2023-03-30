@@ -113,8 +113,8 @@ export class AI {
     const response = await this._tts.synthesizeSpeech({
       input: { text },
       voice: {
-        languageCode: character.languageCode ?? 'en-US',
-        name: character.voice ?? 'en-US-Wavenet-A',
+        languageCode: character?.languageCode ?? 'en-US',
+        name: character?.voice ?? 'en-US-Wavenet-A',
       },
       audioConfig: {
         audioEncoding: 'MP3',
@@ -163,6 +163,7 @@ Return a character with the name '${name}'
     } catch (e) {
       throw new Error('Error parsing character JSON');
     }
+    console.log("Character: ", character);
     character.voice = await this.selectVoice(character);
     return character;
   }

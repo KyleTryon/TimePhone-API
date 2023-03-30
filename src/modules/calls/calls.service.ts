@@ -4,6 +4,7 @@ import { UpdateCallDto } from './dto/update-call.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { AI } from '../../shared/ai';
 import { ChatCompletionResponseMessageRoleEnum } from 'openai';
+import { StorageService } from 'src/shared/storage';
 
 @Injectable()
 export class CallsService {
@@ -13,6 +14,10 @@ export class CallsService {
     const ai = new AI();
     const newCharacter = await ai.getCharacter(createCallDto.character);
     const newCallResponse = await ai.startCall(createCallDto.prompt, newCharacter);
+    const responseAudio = await ai.textToSpeech(
+      newCallResponse.response.content,
+      StorageService.generateKeyFromString(newCallResponse.response.content),
+    )
     const newCall = await this.prisma.call.create({
       data: {
         character: {
@@ -44,6 +49,7 @@ export class CallsService {
       ...newCall,
       response: {
         text: newCallResponse.response.content,
+        audio: responseAudio,
         voice: newCharacter.voice
       },
     };
