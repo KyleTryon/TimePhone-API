@@ -18,9 +18,28 @@ export class AI {
     openAIKey = process.env.OPENAI_API_KEY,
     ttsKey = process.env.GCP_AUTHJSON_BASE64,
   ) {
+    if (!openAIKey) {
+      throw new Error('OpenAI API Key not found');
+    }
+    if (!ttsKey) {
+      throw new Error('GCP TTS API Key not found');
+    }
+    let decodedTTSKey: string;
+    try {
+      decodedTTSKey = Buffer.from(ttsKey, 'base64').toString('ascii');
+    } catch (e) {
+      throw new Error('Error decoding GCP TTS API Key from base64');
+    }
+    let parsedTTSKey: object;
+    try {
+      parsedTTSKey = JSON.parse(decodedTTSKey);
+    } catch (e) {
+      throw new Error('Error parsing GCP TTS API Key JSON');
+    }
+
     this._storage = new StorageService();
     this._oaiKey = openAIKey;
-    this._ttsKey = JSON.parse(Buffer.from(ttsKey, 'base64').toString('ascii'));
+    this._ttsKey = parsedTTSKey;
     const config = new Configuration({
       apiKey: this._oaiKey,
     });
