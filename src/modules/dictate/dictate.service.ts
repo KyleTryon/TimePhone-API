@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AI } from 'src/shared/ai';
+import { AI } from '../../shared/ai';
 import { CreateDictateDto } from './dto/create-dictate.dto';
 
 const ai = new AI();

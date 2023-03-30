@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { AI } from 'src/shared/ai';
-import { StorageService } from 'src/shared/storage';
+import { AI } from '../../shared/ai';
+import { StorageService } from '../../shared/storage';
 
 const ai = new AI();
 @Injectable()
